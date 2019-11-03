@@ -1,0 +1,41 @@
+
+    {% extends 'app/base.html' %}  <!-- 告訴Django我們要繼承的是什麼 -->
+    {% block content %}
+	<div class="container-fluid">
+	  <div class="row">
+	    <div class="col-sm-3 col-md-2 sidebar">
+	      <ul class="nav nav-sidebar">
+	        <li class="item-bar"><a href="/">帳務總覽</a></li>
+	        <li class="item-bar active"><a href="/settings">設定</a></li>
+	      </ul>
+	    </div>
+	  </div>
+	</div>
+	<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+	  <h3 class="page-header">分類設定</h3>
+	  <form action = "/add_category" method="post"> <!-- 新增表單 --> <!-- action這個屬性定義當我們點擊submit這個按鈕後，它會去觸發哪一個url -->
+	  	{% csrf_token %}  <!-- 用post時，為了連免cookies被別人偷，需作認証的動作 -->
+	  	<!-- form 這邊可以放各種的input -->
+	  	<input type="text" name = "_add_category">  <!-- 增加一個可以輸入文字的文字框; 要記得加上name的屬性 -->
+	  	<!-- name這個屬性讓 Django 可以存取 input 輸入進來的值 -->
+	  	<input type="submit" value="新增分類" class="btn show-new-item"><!-- 增加了一個會"新增分類"按鈕, 並用bootstrap內的css來美化 -->
+	  </form>
+		<table class="table table-scrollable">
+		  <thead>
+		     <tr>
+		      <th>分類</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+	        {% for category in categorys %}  <!-- 宣告 for 迴圈的起始位置 -->
+                <tr>
+                <td>
+                  <div class="col-sm-1">{{category.category}}</div> <!-- 後面為指定格式 -->
+                  <div class="col-sm-1"><a href="/delete_category/{{category.category}}">刪除</a></div>  
+              	</td>
+                </tr>
+            {% endfor %}  <!-- 宣告 for 迴圈的結束位置  -->
+		  </tbody>
+		</table>
+	</div>
+    {% endblock %}

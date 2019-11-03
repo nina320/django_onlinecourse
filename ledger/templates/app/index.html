@@ -1,0 +1,111 @@
+   <!-- 把在base.html已定義要繼承的部分刪除 -->
+
+    {% extends 'app/base.html' %}  <!-- 告訴Django我們要繼承的是什麼 -->
+    {% block content %}
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="active"><a href="/">帳務總覽</a></li>
+            <li><a href="/settings">設定</a></li>
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">帳務總覽</h1>
+    
+          <div class="row placeholders">
+            <div class="col-xs-8 col-sm-4 placeholder">
+              <h3>收入</h3>
+              <span class="text-muted"><h2>{{ income }}</h2></span>
+            </div>
+            <div class="col-xs-8 col-sm-4 placeholder">
+              <h3>支出</h3>
+              <span class="text-muted"><h2><font color="#DF565C">{{ outcome }}</font></h2></span>
+            </div>
+            <div class="col-xs-8 col-sm-4 placeholder">
+              <h3>存款</h3>
+              <span class="text-muted"><h2><font color="#53DF7D">{{ net }}</font></h2></span>
+            </div>
+          </div>
+
+          <div class= "th-wrapper">
+      <h3 class="sub-header">新增記錄</h3>
+      </div>
+      <div class="table-responsive">
+        <form action="/add_record" method="post">  <!-- (form開始)，按了 <input type="submit">那邊，會執行 add_record -->
+        {% csrf_token %}
+        <!-- 下面包了一個table, 給日期、描述… 等欄位用  -->
+          <table class="table table-striped">
+          <col style="width:15%">
+          <col style="width:35%">
+          <col style="width:20%">
+          <col style="width:18%">
+          <col style="width:7%">
+            <thead>
+               <tr>
+                <th>日期</th>
+                <th>描述</th>
+                <th>分類</th>
+                <th>金額</th>
+                <th>收支</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+             {% for field in record_form %} <!--  這個record_form是我們在views回傳的變數，它
+             本身就是ModelForm的物件，所以可以把它想成是一個Model, 本身可以有很多欄位，field就是代表
+             欄位(日期、描述…等等這些)，那我們就可以用for迴圈的方式，把各個欄位給print、顯現出來 -->
+                <td>{{field}}</td>
+             {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+          <div class="right-area">
+            <input type="submit" class="btn show-new-item" value="新增紀錄"/> <!-- 點這個submit按鈕，會執行上面 /add_record 這個 url -->
+          </div>
+        </form>    <!-- form結束  -->
+      </div>
+          <h3 class="sub-header">歷史記錄</h3>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <!-- 調整欄位的寬度  -->
+          <col style="width:15%">
+          <col style="width:35%">
+          <col style="width:20%">
+          <col style="width:18%">
+          <col style="width:7%">
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>描述</th>
+                  <th>分類</th>
+                  <th>金額</th>
+                  <th>收/支</th>
+                  <th></th>  <!-- 等下要在下面的td放置刪除的按鈕 -->
+                </tr>
+              </thead>
+              <tbody>
+                <!-- {{records}} --> <!--# 使用 records 這個變數-->
+                {% for record in records %}  <!-- 宣告 for 迴圈的起始位置 -->
+                <tr>
+                  <td>{{record.date | date:"Y-m-d" }}</td>  <!-- 後面為指定格式 -->
+                  <td>{{record.description}}</td>
+                  <td>{{record.category}}</td>
+                  <td>{{record.cash}}</td>
+                  <td>{{record.balance_type}}</td>
+                  <td>  <!-- 放置刪除按鈕的地方 ，我們要每新增一筆資料時，也伴隨著新增一個按鈕進來-->
+                    <form method="post" action="/delete_record">
+                      {% csrf_token %}
+                      <input type="hidden" value="{{record.id}}" name="delete_val"> <!-- 這個input是用來承載我們要刪除的那筆記錄，要用 name這個屬性好讓view.py那裡可以找出來  -->
+                      <input type="submit" class = "btn" value="刪除">  <!-- 按鈕，class= "btn"是css用哪一個(這用bootstrap 的一個css) -->
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}  <!-- 宣告 for 迴圈的結束位置  -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock %}
